@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { validateEventInput } from "@/lib/calendar-validation";
+import { deleteDemoEvent, updateDemoEvent } from "@/lib/demo";
 import { toDisplayEvent, toGoogleEventRequest } from "@/lib/event-mapping";
 import { getCalendarClient } from "@/lib/google";
 import { getRouteAuth } from "@/lib/route-auth";
@@ -32,11 +33,17 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
   if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  const existing = await getOwnedEvent(id, auth.userId);
-  if (!existing) return NextResponse.json({ error: "Event not found." }, { status: 404 });
-
   const validation = validateEventInput(await req.json().catch(() => null));
   if (!validation.ok) return NextResponse.json({ error: validation.error }, { status: 400 });
+
+  if (auth.isDemo) {
+    const updated = updateDemoEvent(auth.userId, id, validation.value);
+    if (!updated) return NextResponse.json({ error: "Event not found." }, { status: 404 });
+    return NextResponse.json({ event: toDisplayEvent(updated) });
+  }
+
+  const existing = await getOwnedEvent(id, auth.userId);
+  if (!existing) return NextResponse.json({ error: "Event not found." }, { status: 404 });
   const supabaseAdmin = getSupabaseAdmin();
 
   try {
@@ -75,6 +82,13 @@ export async function DELETE(req: NextRequest, { params }: RouteContext) {
   if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
+
+  if (auth.isDemo) {
+    const deleted = deleteDemoEvent(auth.userId, id);
+    if (!deleted) return NextResponse.json({ error: "Event not found." }, { status: 404 });
+    return NextResponse.json({ success: true });
+  }
+
   const existing = await getOwnedEvent(id, auth.userId);
   if (!existing) return NextResponse.json({ error: "Event not found." }, { status: 404 });
   const supabaseAdmin = getSupabaseAdmin();

@@ -58,7 +58,10 @@ const useCalendarStore = create((set, get) => ({
 
   addEvent: (event) => {
     const newEvent = {
-      id: crypto.randomUUID(),
+      id:
+        typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+          ? crypto.randomUUID()
+          : `id_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`,
       ...event,
     };
     set((state) => ({ events: [...state.events, newEvent] }));

@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import type { calendar_v3 } from "googleapis";
+import { getDemoEvents } from "@/lib/demo";
 import { mapGoogleEventToDbEvent, toDisplayEvent } from "@/lib/event-mapping";
 import { getCalendarClient } from "@/lib/google";
 import { getRouteAuth } from "@/lib/route-auth";
@@ -79,6 +80,15 @@ async function listGoogleEvents(
 export async function POST(req: NextRequest) {
   const auth = await getRouteAuth(req);
   if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  if (auth.isDemo) {
+    const events = getDemoEvents(auth.userId);
+    return NextResponse.json({
+      events: events.map(toDisplayEvent),
+      nextSyncToken: null,
+      synced: events.length
+    });
+  }
 
   const calendar = getCalendarClient(auth.googleToken);
   let syncToken = await getSyncToken(auth.userId);

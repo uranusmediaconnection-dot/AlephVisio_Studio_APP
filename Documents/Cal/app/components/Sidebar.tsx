@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Clock, LogOut, Plus, RefreshCw, Settings } from "lucide-react";
+import { Calendar, Clock, LogOut, Plus, RefreshCw } from "lucide-react";
 import type { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 import { MiniCalendar } from "@/app/components/MiniCalendar";
@@ -112,9 +112,6 @@ export function Sidebar({
         </div>
       </div>
 
-      <div className="hidden">
-        <Settings />
-      </div>
     </aside>
   );
 }

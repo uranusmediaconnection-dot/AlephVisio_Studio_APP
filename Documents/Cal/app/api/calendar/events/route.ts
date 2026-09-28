@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { validateEventInput } from "@/lib/calendar-validation";
+import { createDemoEvent, getDemoEvents } from "@/lib/demo";
 import { mapGoogleEventToDbEvent, toDisplayEvent, toGoogleEventRequest } from "@/lib/event-mapping";
 import { getCalendarClient } from "@/lib/google";
 import { getRouteAuth } from "@/lib/route-auth";
@@ -28,6 +29,13 @@ export async function GET(req: NextRequest) {
 
   const startAt = toIsoBound(searchParams.get("startDate"), defaultStart);
   const endAt = toIsoBound(searchParams.get("endDate"), defaultEnd);
+
+  if (auth.isDemo) {
+    return NextResponse.json({
+      events: getDemoEvents(auth.userId, startAt, endAt).map(toDisplayEvent)
+    });
+  }
+
   const supabaseAdmin = getSupabaseAdmin();
 
   const { data, error } = await supabaseAdmin
@@ -50,6 +58,12 @@ export async function POST(req: NextRequest) {
 
   const validation = validateEventInput(await req.json().catch(() => null));
   if (!validation.ok) return NextResponse.json({ error: validation.error }, { status: 400 });
+
+  if (auth.isDemo) {
+    const event = createDemoEvent(auth.userId, validation.value);
+    return NextResponse.json({ event: toDisplayEvent(event) }, { status: 201 });
+  }
+
   const supabaseAdmin = getSupabaseAdmin();
 
   try {

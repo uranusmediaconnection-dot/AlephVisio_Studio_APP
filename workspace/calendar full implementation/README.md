@@ -1,47 +1,57 @@
 # Calendar App (Full‑Stack)
 
-A modern **2026‑style** calendar built with a lightweight **React‑like** front‑end (vanilla ES modules + Tailwind) and a tiny **Express** back‑end that stores events in a JSON file.
+Two calendar experiences sharing one tiny events API:
 
-## Features
-- Dark glass‑morphism UI, smooth animations, purple accent.
-- Monthly, weekly and daily views.
-- Create / edit / delete events (modal UI).
-- Free‑time finder.
-- Responsive design – mobile friendly.
-- Backend API (`/api/events`) for persisting events.
+- **CalSync** (`index.html`) — self-contained single-file app (vanilla JS +
+  Tailwind CDN, `localStorage` persistence). Just open it in a browser.
+- **Andromeda** (`medical-dashboard/`) — React 19 + Vite + Tailwind v4 app
+  (Zustand store, Framer Motion, charts, 3D hero).
+- **Backend** (`backend/server.js`) — Express (ESM) API (`/api/events`,
+  `/api/health`) persisting to `backend/data/events.json`. Serves the built
+  SPA when present, otherwise the CalSync page.
 
 ## Project Structure
+
 ```
 calendar full implementation/
 │   README.md
-│   package.json            # monorepo for both front‑end & back‑end
+│   AGENTS.md                 # contributor notes for AI agents
+│   index.html                # CalSync — standalone single-file app
+│   package.json              # backend deps + orchestration scripts
 │
-├─frontend/
-│   ├─public/
-│   │   ├─index.html        # entry point (served by backend)
-│   │   └─style.css         # Tailwind‑generated CSS (included via CDN)
-│   └─src/
-│       ├─index.js          # bootstraps the app
-│       ├─App.js             # root component
-│       ├─Calendar.js        # month / week / day grid
-│       ├─EventModal.js      # modal for add / edit events
-│       ├─Sidebar.js         # user list, mini‑calendar, upcoming
-│       └─utils.js           # date helpers, storage helpers
+├─backend/
+│   ├─server.js               # Express server: static frontend + API
+│   ├─copyFrontend.js         # build helper (medical-dashboard/dist -> backend/public)
+│   ├─public/                 # (generated) production SPA, served at /
+│   └─data/events.json        # simple JSON DB for events
 │
-└─backend/
-    ├─server.js               # Express server, serves static front‑end + API
-    └─data/events.json        # simple JSON DB for events
+└─medical-dashboard/          # Andromeda React app (own package.json)
+    ├─src/
+    └─public/
 ```
 
-## Development & Build
+## Development
+
 ```bash
-# 1️⃣ Install dependencies (Node.js >= 18 required)
+# 1. Install dependencies (Node.js >= 18 required)
 npm install
+npm --prefix medical-dashboard install
 
-# 2️⃣ Run both front‑end & back‑end in development mode
-npm run dev    # starts Express on http://localhost:3000
+# 2a. Run backend + frontend together
+npm run dev
+# backend → http://localhost:3001 (API + CalSync page)
+# frontend → http://localhost:5173 (Andromeda dev server)
+
+# 2b. Or run them individually
+npm run server     # Express API on :3001
+npm run frontend   # Vite dev server on :5173
 ```
-Open the URL in a browser – you’ll see the freshly styled calendar.
 
-## Deploying to GitHub & Vercel (step‑by‑step guide)
-See the **Deploy Guide** section at the bottom of this file.
+## Production build
+
+```bash
+npm run build   # builds medical-dashboard/ into backend/public/
+npm start       # serves everything from one process (PORT env, default 3001)
+```
+
+See `AGENTS.md` for architecture notes, testing, and gotchas.

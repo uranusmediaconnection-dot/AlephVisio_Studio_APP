@@ -1,4 +1,10 @@
-import React, { useState, useEffect, startTransition, ViewTransition, addTransitionType } from 'react';
+import React, { useState, useEffect, startTransition } from 'react';
+
+// `ViewTransition` / `addTransitionType` only exist in React's experimental /
+// canary releases. Fall back gracefully so the app still renders on stable React
+// instead of crashing with a blank page on a missing export.
+const ViewTransition = React.ViewTransition ?? (({ children }) => <>{children}</>);
+const addTransitionType = React.addTransitionType ?? (() => {});
 import useCalendarStore from './store/useCalendarStore';
 import { 
   List, 

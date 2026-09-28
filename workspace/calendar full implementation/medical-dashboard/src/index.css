@@ -1,4 +1,9 @@
 @import "tailwindcss";
+@config "../tailwind.config.js";
+
+/* Tailwind v4 uses prefers-color-scheme for `dark:` by default; restore the
+   classic class-based strategy used by this app (`.dark` on <html>). */
+@custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
   :root {

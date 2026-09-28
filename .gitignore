@@ -2,7 +2,11 @@
 !workspace/
 !workspace/calendar full implementation
 !workspace/calendar full implementation/**
+!Documents/
+!Documents/**
 !README.md
+!Dockerfile
+!.dockerignore
 node_modules/
 dist/
 .claude/

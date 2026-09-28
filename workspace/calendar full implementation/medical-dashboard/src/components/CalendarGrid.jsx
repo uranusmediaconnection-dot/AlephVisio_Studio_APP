@@ -199,8 +199,8 @@ const CalendarGrid = () => {
             <div key={month.toString()} className="space-y-4">
               <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest ml-2">{format(month, 'MMMM')}</h3>
               <div className="grid grid-cols-7 text-[10px]">
-                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => (
-                  <div key={d} className="text-center text-gray-400 font-bold py-1">{d}</div>
+                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
+                  <div key={`${d}-${i}`} className="text-center text-gray-400 font-bold py-1">{d}</div>
                 ))}
                 {(() => {
                   const start = startOfWeek(startOfMonth(month));

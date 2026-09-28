@@ -4,4 +4,18 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  server: {
+    host: '0.0.0.0',
+    port: 5173,
+    strictPort: false,
+    // Allow proxied live-preview hosts (e.g. https://5173-<id>.e2b.app).
+    // `true` permits any host; safe for a local dev server.
+    allowedHosts: true,
+  },
+  preview: {
+    host: '0.0.0.0',
+    port: 4173,
+    strictPort: false,
+    allowedHosts: true,
+  },
 })

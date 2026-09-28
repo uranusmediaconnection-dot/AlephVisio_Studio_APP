@@ -1,5 +1,7 @@
 import type { NextAuthOptions } from "next-auth";
+import Credentials from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
+import { DEMO_USER_ID, isDemoModeEnabled } from "@/lib/demo";
 import { refreshGoogleAccessToken, shouldRefreshAccessToken } from "@/lib/google";
 
 export const authOptions: NextAuthOptions = {
@@ -16,14 +18,41 @@ export const authOptions: NextAuthOptions = {
           response_type: "code"
         }
       }
-    })
+    }),
+    // Passwordless demo login used for local testing when Google OAuth and
+    // Supabase are not configured. Only registered when DEMO_MODE=true.
+    ...(isDemoModeEnabled()
+      ? [
+          Credentials({
+            id: "demo",
+            name: "Demo",
+            credentials: {},
+            async authorize() {
+              return {
+                id: DEMO_USER_ID,
+                name: "Demo User",
+                email: "demo@example.com"
+              };
+            }
+          })
+        ]
+      : [])
   ],
   callbacks: {
     async jwt({ token, account }) {
       if (account) {
+        token.provider = account.provider;
+        // Demo sessions have no Google tokens; skip the refresh flow entirely.
+        if (account.provider === "demo") {
+          return token;
+        }
         token.accessToken = account.access_token;
         token.refreshToken = account.refresh_token ?? token.refreshToken;
         token.accessTokenExpiresAt = account.expires_at;
+      }
+
+      if (token.provider === "demo") {
+        return token;
       }
 
       if (shouldRefreshAccessToken(token.accessTokenExpiresAt)) {

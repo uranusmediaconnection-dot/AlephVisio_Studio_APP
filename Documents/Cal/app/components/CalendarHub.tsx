@@ -224,6 +224,19 @@ export function CalendarHub() {
             </span>
             Sign in with Google
           </button>
+          {process.env.NEXT_PUBLIC_DEMO_MODE === "true" && (
+            <>
+              <button
+                onClick={() => signIn("demo", { callbackUrl: "/" })}
+                className="btn-primary focus-ring mt-3 flex w-full items-center justify-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5"
+              >
+                Explore the demo workspace
+              </button>
+              <p className="mt-3 text-xs leading-5 text-[color:var(--text-muted)]">
+                No Google account needed. Demo data is kept in memory and resets when the server restarts.
+              </p>
+            </>
+          )}
         </section>
       </main>
     );
@@ -310,7 +323,7 @@ export function CalendarHub() {
               <button
                 key={cell.dateStr}
                 onClick={() => handleDateSelect(cell.dateStr)}
-                className={`calendar-cell flex min-h-28 flex-col overflow-hidden p-2 text-left transition ${
+                className={`calendar-cell flex min-h-[7rem] flex-col overflow-hidden p-2 text-left transition ${
                   cell.other ? "bg-[color:var(--bg-primary)] text-[color:var(--text-muted)]" : "bg-[color:var(--bg-secondary)]"
                 } ${cell.today ? "today-cell" : ""} ${selectedDate === cell.dateStr ? "selected-cell" : ""}`}
               >
